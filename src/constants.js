@@ -3,8 +3,8 @@
 const DEFAULT_COMMAND = `--help`;
 const USER_ARGV_INDEX = 2;
 const ExitCode = {
-  success: 0,
-  fail: 1,
+  SUCCESS: 0,
+  FAIL: 1,
 }
 
 module.exports = {
