@@ -7,7 +7,7 @@ const {
   getRandomInt,
   shuffle,
 } = require(`../../utils`);
-const { ExitCode } = require(`../../constants`);
+const {ExitCode} = require(`../../constants`);
 
 const MAX_COUNT = 1000;
 const DEFAULT_COUNT = 1;
@@ -32,7 +32,7 @@ const PictureRestrict = {
   MAX: 16,
 };
 
-const getPictureFileName = number =>
+const getPictureFileName = (number) =>
   `item${number < 10 ? `0${number}` : number}.jpg`;
 
 const generateOffers = (count, titles, categories, sentences) => (
