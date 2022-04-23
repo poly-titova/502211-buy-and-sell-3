@@ -41,7 +41,7 @@ const generateOffers = (count, titles, categories, sentences) => (
     title: titles[getRandomInt(0, titles.length - 1)],
     description: shuffle(sentences).slice(1, 5).join(` `),
     sum: getRandomInt(SumRestrict.min, SumRestrict.max),
-    picture: getPictureFileName(getRandomInt(PictureRestrict.min, PictureRestrict.max)),
+    picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
     category: shuffle(categories).slice(0, getRandomInt(1, categories.length - 1)),
   }))
 );
