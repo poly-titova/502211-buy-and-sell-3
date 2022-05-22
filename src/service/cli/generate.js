@@ -2,6 +2,7 @@
 
 const fs = require(`fs`).promises;
 const chalk = require(`chalk`);
+const {nanoid} = require(`nanoid`);
 
 const {
   getRandomInt,
@@ -10,6 +11,7 @@ const {
 const {ExitCode} = require(`../../constants`);
 
 const MAX_COUNT = 1000;
+const MAX_ID_LENGTH = 6;
 const DEFAULT_COUNT = 1;
 const FILE_NAME = `mocks.json`;
 
@@ -37,6 +39,7 @@ const getPictureFileName = (number) =>
 
 const generateOffers = (count, titles, categories, sentences) => (
   Array(count).fill({}).map(() => ({
+    id: nanoid(MAX_ID_LENGTH),
     type: OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]],
     title: titles[getRandomInt(0, titles.length - 1)],
     description: shuffle(sentences).slice(1, 5).join(` `),
