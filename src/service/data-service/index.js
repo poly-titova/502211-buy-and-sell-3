@@ -3,9 +3,11 @@
 const CategoryService = require(`./category`);
 const SearchService = require(`./search`);
 const OfferService = require(`./offer`);
+const CommentService = require(`./comment`);
 
 module.exports = {
   CategoryService,
   SearchService,
-  OfferService
+  OfferService,
+  CommentService,
 };

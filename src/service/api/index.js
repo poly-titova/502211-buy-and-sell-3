@@ -11,6 +11,7 @@ const {
   CategoryService,
   SearchService,
   OfferService,
+  CommentService,
 } = require(`../data-service`);
 
 const app = new Router();
@@ -20,7 +21,7 @@ const app = new Router();
 
   category(app, new CategoryService(mockData));
   search(app, new SearchService(mockData));
-  offer(app, new OfferService(mockData))
+  offer(app, new OfferService(mockData), new CommentService())
 })();
 
 module.exports = app;
