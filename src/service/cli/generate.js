@@ -8,10 +8,9 @@ const {
   getRandomInt,
   shuffle,
 } = require(`../../utils`);
-const {ExitCode} = require(`../../constants`);
+const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
 
 const MAX_COUNT = 1000;
-const MAX_ID_LENGTH = 6;
 const MAX_COMMENTS = 4;
 const DEFAULT_COUNT = 1;
 const FILE_NAME = `mocks.json`;
@@ -51,12 +50,12 @@ const generateComments = (count, comments) => (
 const generateOffers = (count, titles, categories, sentences, comments) => (
   Array(count).fill({}).map(() => ({
     id: nanoid(MAX_ID_LENGTH),
-    type: OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]],
-    title: titles[getRandomInt(0, titles.length - 1)],
-    description: shuffle(sentences).slice(1, 5).join(` `),
-    sum: getRandomInt(SumRestrict.min, SumRestrict.max),
-    picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
     category: shuffle(categories).slice(0, getRandomInt(1, categories.length - 1)),
+    description: shuffle(sentences).slice(1, 5).join(` `),
+    picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
+    title: titles[getRandomInt(0, titles.length - 1)],
+    type: OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]],
+    sum: getRandomInt(SumRestrict.MIN, SumRestrict.MAX),
     comments: generateComments(getRandomInt(1, MAX_COMMENTS), comments),
   }))
 );
