@@ -7,7 +7,8 @@
     "test": "npm run eslint && npm run jest",
     "jest": "jest",
     "eslint": "eslint --ext .js src/",
-    "start": "nodemon ./src/service/service.js --server 3000",
+    "start": "cross-env LOG_FILE=info NODE_ENV=production node ./src/service/service.js",
+    "start::debug": "cross-env LOG_FILE=debug NODE_ENV=development node ./src/service/service.js",
     "start-front-server": "node ./src/express/express.js"
   },
   "repository": {
@@ -30,6 +31,7 @@
   },
   "dependencies": {
     "chalk": "4.1.2",
+    "cross-env": "7.0.3",
     "express": "4.17.2",
     "nanoid": "3.3.3",
     "pino": "8.0.0",
