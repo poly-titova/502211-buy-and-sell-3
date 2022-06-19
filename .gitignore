@@ -16,3 +16,5 @@ build/
 
 # Моковые данные
 mocks.json
+
+upload/
