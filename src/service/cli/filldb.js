@@ -1,19 +1,17 @@
 'use strict';
 
 const fs = require(`fs`).promises;
-const chalk = require(`chalk`);
-const {nanoid} = require(`nanoid`);
-
 const {
   getRandomInt,
   shuffle,
 } = require(`../../utils`);
-const {ExitCode, MAX_ID_LENGTH} = require(`../../constants`);
+const sequelize = require(`../lib/sequelize`);
+const initDatabase = require(`../lib/init-db`);
+const {getLogger} = require(`../lib/logger`);
+const logger = getLogger({});
 
-const MAX_COUNT = 1000;
 const MAX_COMMENTS = 4;
 const DEFAULT_COUNT = 1;
-const FILE_NAME = `mocks.json`;
 
 const FILE_TITLES_PATH = `./data/titles.txt`;
 const FILE_SENTENCES_PATH = `./data/sentences.txt`;
@@ -35,26 +33,37 @@ const PictureRestrict = {
   MAX: 16,
 };
 
-const getPictureFileName = (number) =>
-  `item${number < 10 ? `0${number}` : number}.jpg`;
+const getPictureFileName = (number) => `item${number.toString().padStart(2, 0)}.jpg`;
 
 const generateComments = (count, comments) => (
   Array(count).fill({}).map(() => ({
-    id: nanoid(MAX_ID_LENGTH),
     text: shuffle(comments)
       .slice(0, getRandomInt(1, 3))
       .join(` `),
   }))
 );
 
+const getRandomSubarray = (items) => {
+  items = items.slice();
+  let count = getRandomInt(1, items.length - 1);
+  const result = [];
+  while (count--) {
+    result.push(
+        ...items.splice(
+            getRandomInt(0, items.length - 1), 1
+        )
+        );
+  }
+  return result;
+};
+
 const generateOffers = (count, titles, categories, sentences, comments) => (
   Array(count).fill({}).map(() => ({
-    id: nanoid(MAX_ID_LENGTH),
-    category: shuffle(categories).slice(0, getRandomInt(1, categories.length - 1)),
+    categories: getRandomSubarray(categories),
     description: shuffle(sentences).slice(1, 5).join(` `),
     picture: getPictureFileName(getRandomInt(PictureRestrict.MIN, PictureRestrict.MAX)),
     title: titles[getRandomInt(0, titles.length - 1)],
-    type: OfferType[Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)]],
+    type: Object.keys(OfferType)[Math.floor(Math.random() * Object.keys(OfferType).length)],
     sum: getRandomInt(SumRestrict.MIN, SumRestrict.MAX),
     comments: generateComments(getRandomInt(1, MAX_COMMENTS), comments),
   }))
@@ -65,14 +74,23 @@ const readContent = async (filePath) => {
     const content = await fs.readFile(filePath, `utf8`);
     return content.trim().split(`\n`);
   } catch (err) {
-    console.error(chalk.red(err));
+    logger.error(`Error when reading file: ${err.message}`);
     return [];
   }
 };
 
 module.exports = {
-  name: `--generate`,
+  name: `--filldb`,
   async run(args) {
+    try {
+      logger.info(`Trying to connect to database...`);
+      await sequelize.authenticate();
+    } catch (err) {
+      logger.error(`An error occured: ${err.message}`);
+      process.exit(1);
+    }
+    logger.info(`Connection to database established`);
+
     const titles = await readContent(FILE_TITLES_PATH);
     const sentences = await readContent(FILE_SENTENCES_PATH);
     const categories = await readContent(FILE_CATEGORIES_PATH);
@@ -80,19 +98,8 @@ module.exports = {
 
     const [count] = args;
     const countOffer = Number.parseInt(count, 10) || DEFAULT_COUNT;
-    const content = JSON.stringify(generateOffers(countOffer, titles, categories, sentences, comments));
+    const offers = generateOffers(countOffer, titles, categories, sentences, comments);
 
-    if (countOffer > MAX_COUNT) {
-      console.error(chalk.red(`Не больше 1000 публикаций`));
-      process.exit(ExitCode.FAIL);
-    }
-
-    try {
-      await fs.writeFile(FILE_NAME, content);
-      console.log(chalk.green(`Operation success. File created.`));
-    } catch (err) {
-      console.error(chalk.red(`Can't write data to file...` + err));
-      process.exit(ExitCode.FAIL);
-    }
+    return initDatabase(sequelize, {offers, categories});
   }
 };
