@@ -6,7 +6,17 @@ head
   meta(http-equiv='X-UA-Compatible' content='ie=edge')
   title Куплю. Продам
   link(rel='stylesheet' href='/css/style.min.css')
+  style.
+    a.active{
+      pointer-events: none;
+    }
 body
+  -
+    const getRandomInt = (max) => Math.ceil(Math.random()*max);
+  mixin ticketCard()
+    .ticket-card(class = `ticket-card--color0${getRandomInt(8)}`)
+      block
+
   mixin insertOfferImage(offer)
     img(src=`/img/${offer.picture ? offer.picture : 'blank.png'}` alt=offer.title)
 
