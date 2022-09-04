@@ -17,11 +17,16 @@ body
     .ticket-card(class = `ticket-card--color0${getRandomInt(8)}`)
       block
 
+  mixin ticketLabel(type)
+    span(class!=attributes.class || `ticket-card__label`) #{type === `OFFER` ? `Куплю` : `Продам`}
+
   mixin insertOfferImage(offer)
     img(src=`/img/${offer.picture ? offer.picture : 'blank.png'}` alt=offer.title)
 
-  mixin ticketLabel(type)
-    span(class!=attributes.class || `ticket-card__label`) #{type === `OFFER` ? `Куплю` : `Продам`}
+  mixin categoryImage(category)
+    -
+      const idPadded = `0${getRandomInt(6)}`
+    img(src=`/img/cat${idPadded}.jpg` srcset=`/img/cat${idPadded}@2x.jpg 2x` alt=category.name)
 
   include partials/header.pug
   block content
