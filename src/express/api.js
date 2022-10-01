@@ -8,7 +8,6 @@ const port = process.env.API_PORT || 3000;
 const defaultURL = `http://localhost:${port}/api/`;
 
 class API {
-
   constructor(baseURL, timeout) {
     this._http = axios.create({
       baseURL,
@@ -21,23 +20,23 @@ class API {
     return response.data;
   }
 
-  getOffers() {
-    return this._load(`/offers`);
+  getOffers({comments}) {
+    return this._load(`/offers`, {params: {comments}});
   }
 
-  getOffer(id) {
-    return this._load(`/offers/${id}`);
+  getOffer(id, comments) {
+    return this._load(`/offers/${id}`, {params: {comments}});
   }
 
   search(query) {
     return this._load(`/search`, {params: {query}});
   }
 
-  async getCategories() {
-    return this._load(`/categories`);
+  getCategories(count) {
+    return this._load(`/category`, {params: {count}});
   }
 
-  async createOffer(data) {
+  createOffer(data) {
     return this._load(`/offers`, {
       method: `POST`,
       data

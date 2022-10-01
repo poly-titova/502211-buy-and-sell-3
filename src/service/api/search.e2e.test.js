@@ -2,16 +2,25 @@
 
 const express = require(`express`);
 const request = require(`supertest`);
+const Sequelize = require(`sequelize`);
 
+const initDB = require(`../lib/init-db`);
 const search = require(`./search`);
 const DataService = require(`../data-service/search`);
 
 const {HttpCode} = require(`../../constants`);
 
+const mockCategories = [
+  `Журналы`,
+  `Игры`,
+  `Книги`,
+  `Разное`,
+  `Животные`
+];
+
 const mockData = [
   {
-    "id": `OK1nlU`,
-    "category": [
+    "categories": [
       `Журналы`,
       `Игры`,
       `Книги`
@@ -23,18 +32,16 @@ const mockData = [
     "sum": 28764,
     "comments": [
       {
-        "id": `fokpWk`,
         "text": `А где блок питания?`
       },
       {
-        "id": `1taug0`,
         "text": `Совсем немного... С чем связана продажа? Почему так дешёво? Почему в таком ужасном состоянии?`
       }
     ]
   },
   {
     "id": `5nnopP`,
-    "category": [
+    "categories": [
       `Разное`
     ],
     "description": `При покупке с меня бесплатная доставка в черте города. Это настоящая находка для коллекционера! Пользовались бережно и только по большим праздникам. Если найдёте дешевле — сброшу цену.`,
@@ -44,22 +51,18 @@ const mockData = [
     "sum": 54771,
     "comments": [
       {
-        "id": `L82MZM`,
         "text": `А где блок питания?`
       },
       {
-        "id": `SWwx8a`,
         "text": `Продаю в связи с переездом. Отрываю от сердца.`
       },
       {
-        "id": `lGOtBF`,
         "text": `Совсем немного...`
       }
     ]
   },
   {
-    "id": `6rR9az`,
-    "category": [
+    "categories": [
       `Книги`,
       `Животные`,
       `Разное`
@@ -71,26 +74,21 @@ const mockData = [
     "sum": 33475,
     "comments": [
       {
-        "id": `UM-GTK`,
         "text": `С чем связана продажа? Почему так дешёво?`
       },
       {
-        "id": `Ljr3er`,
         "text": `Продаю в связи с переездом. Отрываю от сердца. С чем связана продажа? Почему так дешёво?`
       },
       {
-        "id": `IniHWg`,
         "text": `Оплата наличными или перевод на карту? А где блок питания? Продаю в связи с переездом. Отрываю от сердца.`
       },
       {
-        "id": `b-LNf6`,
         "text": `А сколько игр в комплекте?`
       }
     ]
   },
   {
-    "id": `eHJ61z`,
-    "category": [
+    "categories": [
       `Журналы`,
       `Книги`,
       `Животные`,
@@ -103,26 +101,21 @@ const mockData = [
     "sum": 59400,
     "comments": [
       {
-        "id": `mRs3Iy`,
         "text": `А где блок питания? Вы что?! В магазине дешевле. А сколько игр в комплекте?`
       },
       {
-        "id": `HuqZrg`,
         "text": `Вы что?! В магазине дешевле.`
       },
       {
-        "id": `c01Bmp`,
         "text": `С чем связана продажа? Почему так дешёво?`
       },
       {
-        "id": `NuxXbV`,
         "text": `Вы что?! В магазине дешевле. Оплата наличными или перевод на карту?`
       }
     ]
   },
   {
-    "id": `MD60Og`,
-    "category": [
+    "categories": [
       `Разное`
     ],
     "description": `Товар в отличном состоянии. Если найдёте дешевле — сброшу цену. Это настоящая находка для коллекционера! Продаю с болью в сердце...`,
@@ -132,16 +125,21 @@ const mockData = [
     "sum": 32862,
     "comments": [
       {
-        "id": `XDrBEE`,
         "text": `С чем связана продажа? Почему так дешёво? Вы что?! В магазине дешевле.`
       }
     ]
   }
 ];
 
+const mockDB = new Sequelize(`sqlite::memory:`, {logging: false});
+
 const app = express();
 app.use(express.json());
-search(app, new DataService(mockData));
+
+beforeAll(async () => {
+  await initDB(mockDB, {categories: mockCategories, offers: mockOffers});
+  search(app, new DataService(mockDB));
+});
 
 describe(`API returns offer based on search query`, () => {
   let response;
@@ -156,7 +154,7 @@ describe(`API returns offer based on search query`, () => {
 
   test(`Status code 200`, () => expect(response.statusCode).toBe(HttpCode.OK));
   test(`1 offer found`, () => expect(response.body.length).toBe(1));
-  test(`Offer has correct id`, () => expect(response.body[0].id).toBe(`MD60Og`));
+  test(`Offer has correct title`, () => expect(response.body[0].title).toBe(`Куплю антиквариат`));
 });
 
 test(`API returns code 404 if nothing is found`,
